@@ -45,6 +45,27 @@
             transition: all 0.4s ease;
         }
 
+        /* Ensure all text within the group cards is white */
+.group-card, 
+.group-card h4, 
+.group-card strong, 
+.group-card small, 
+.group-card .text-muted {
+    color: #ffffff !important;
+}
+
+/* Secondary styling for the survival badge */
+.survivor-badge {
+    background-color: #00ff88;
+    color: #000;
+    font-family: 'Orbitron', sans-serif;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    display: inline-block;
+    margin-top: 10px;
+}
+
         .beacon {
             width: 25px;
             height: 25px;
@@ -147,8 +168,8 @@
     // DATA SECTION
     // To disqualify: set eliminated to true, and add a reason ('KPI' or 'SOP') and time
     const gameData = [
-        { id: 1, pair: "Team Alpha", memberA: "Ekene", memberB: "Cecilia", eliminated: false },
-        { id: 2, pair: "Team Bravo", memberA: "Employee 05", memberB: "Employee 09", eliminated: false, reason: "SOP", time: "09:15 AM" },
+        { id: 1, pair: "Team EkCe", memberA: "Ekene", memberB: "Cecilia", eliminated: false },
+        { id: 2, pair: "Team KiGo", memberA: "Kingsley", memberB: "Godwin", eliminated: false, reason: "SOP", time: "09:15 AM" },
         { id: 3, pair: "Team Charlie", memberA: "Employee 03", memberB: "Employee 15", eliminated: false },
         { id: 4, pair: "Team Delta", memberA: "Employee 07", memberB: "Employee 02", eliminated: false },
         { id: 5, pair: "Team Echo", memberA: "Employee 11", memberB: "Employee 04", eliminated: false, reason: "KPI", time: "10:30 AM" },
