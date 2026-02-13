@@ -8,9 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
         body {
-           background-color: #0b0e11;
+            background-color: #0b0e11;
             color: #ffffff;
-            font-family: 'Montserrat', sans-serif; /* Set global font */
+            font-family: 'Montserrat', sans-serif;
             overflow-x: hidden;
         }
 
@@ -18,6 +18,7 @@
             font-family: 'Montserrat', sans-serif;
             text-transform: uppercase;
             letter-spacing: 2px;
+            font-weight: 800;
         }
 
         .header-section {
@@ -26,16 +27,15 @@
             border-bottom: 4px solid #f60702;
         }
 
-        /* SOP Banner Styling */
         #sopBanner {
             background: #fff;
             color: #000;
-            font-weight: bold;
+            font-weight: 800;
             text-align: center;
             padding: 10px;
-            display: none; /* Controlled by JS */
-            font-family: 'Orbitron', sans-serif;
+            display: none;
             border-bottom: 2px solid #fff;
+            font-size: 1.1rem;
         }
 
         .group-card {
@@ -45,26 +45,22 @@
             transition: all 0.4s ease;
         }
 
-        /* Ensure all text within the group cards is white */
-.group-card, 
-.group-card h4, 
-.group-card strong, 
-.group-card small, 
-.group-card .text-muted {
-    color: #ffffff !important;
-}
+        /* All card text white */
+        .group-card, .group-card h4, .group-card strong, .group-card small, .group-card .badge {
+            color: #ffffff !important;
+        }
 
-/* Secondary styling for the survival badge */
-.survivor-badge {
-    background-color: #00ff88;
-    color: #000;
-    font-family: 'Montserrat', sans-serif;
-    padding: 5px 15px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    display: inline-block;
-    margin-top: 10px;
-}
+        .survivor-badge {
+            
+            background-color: #00ff88;
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-top: 10px;
+            font-weight: 700;
+        }
 
         .beacon {
             width: 25px;
@@ -102,10 +98,10 @@
         .log-container {
             background: #000;
             border: 1px solid #444;
-            height: 200px;
+            height: 250px;
             overflow-y: auto;
             font-family: 'Courier New', Courier, monospace;
-            padding: 10px;
+            padding: 15px;
             margin-top: 20px;
         }
 
@@ -113,6 +109,14 @@
             border-bottom: 1px solid #222;
             padding: 5px 0;
             color: #ff3e3e;
+            font-weight: bold;
+        }
+
+        .md-note {
+            color: #00ff88;
+            border-left: 3px solid #00ff88;
+            padding-left: 10px;
+            margin-bottom: 10px;
         }
 
         @keyframes pulse-green {
@@ -134,31 +138,28 @@
             <div class="header-section text-center">
                 <h1 class="display-3 text-white">Motomedia Experience Naija</h1>
                 <p class="text-white">KPI & SOP Employee Engagement Game</p>
+                
             </div>
 
             <div class="container mt-4">
                 <div class="row row-cols-1 row-cols-md-3 g-4" id="groupGrid">
                     </div>
 
-                <h3 class="mt-5 text-danger">Elimination Log</h3>
+                <h3 class="mt-5 text-danger">LIVE DISQUALIFICATION LOG</h3>
                 <div class="log-container" id="eliminationLog">
-                    <div class="text-muted">No disqualifications recorded yet. Monitoring KPIs...</div>
-                </div>
+                    </div>
             </div>
         </div>
 
         <div class="col-lg-3 poll-sidebar">
             <h3 class="text-center mb-4" style="color: #25d366;">WhatsApp Polls</h3>
-            <div id="pollResults">
-                <div class="mb-4">
-                    <p class="mb-1">Most Compliant ??</p>
-                    <div class="progress">
-                        <div class="progress-bar" role="progressbar" style="width: 75%; background-color: #25d366;">Team ?? (75%)</div>
-                    </div>
+            
+            <h6 class="text-white border-bottom pb-2 mb-3">EVICTION NOMINATIONS</h6>
+            <div id="nominationList" style="max-height: 80vh; overflow-y: auto;">
                 </div>
-                <div class="alert alert-dark border-success mt-5">
-                    <small class="text-muted">Live updates from Motomedia Hub</small>
-                </div>
+
+            <div class="alert alert-dark border-success mt-4">
+                <small class="text-muted">Live updates from Motomedia Hub</small>
             </div>
         </div>
     </div>
@@ -166,7 +167,6 @@
 
 <script>
     // DATA SECTION
-    // To disqualify: set eliminated to true, and add a reason ('KPI' or 'SOP') and time
     const gameData = [
         { id: 1, pair: "Team EkCel", memberA: "Ekene", memberB: "Cecilia", eliminated: false },
         { id: 2, pair: "Team KiGo", memberA: "Kingsley", memberB: "Godwin", eliminated: false, reason: "SOP", time: "09:15 AM" },
@@ -179,8 +179,30 @@
         { id: 9, pair: "Team DPro", memberA: "Dominic", memberB: "Prosper", eliminated: false },
         { id: 10, pair: "Team WaKe", memberA: "Wasiu", memberB: "Kemi", eliminated: false },
         { id: 11, pair: "Team AjMos", memberA: "Ajayi", memberB: "Moses", eliminated: false, reason: "KPI", time: "10:30 AM" },
-        
     ];
+
+    // MANUAL LOG ENTRIES (MD Instructions)
+    // Add strings here to show directly in the log
+    const mdManualNotes = [
+        "MD NOTE: Partner accountability is non-negotiable today.",
+        "MD ALERT: "
+    ];
+
+    // NOMINATION TRACKER (22 Participants)
+    const nominationVotes = [
+        { name: "Ekene", votes: 0 }, { name: "Cecilia", votes: 0 },
+        { name: "Kingsley", votes: 0 }, { name: "Godwin", votes: 0 },
+        { name: "Destiny", votes: 0 }, { name: "Nwaka", votes: 0 },
+        { name: "Felicia", votes: 0 }, { name: "Augustina", votes: 0 },
+        { name: "Chiamaka", votes: 0 }, { name: "Damilare", votes: 0 },
+        { name: "Michael", votes: 0 }, { name: "Damaian", votes: 0 },
+        { name: "Pearl", votes: 0 }, { name: "Amara", votes: 0 },
+        { name: "Cynthia", votes: 0 }, { name: "Seun", votes: 0 },
+        { name: "Dominic", votes: 0 }, { name: "Prosper", votes: 0 },
+        { name: "Wasiu", votes: 0 }, { name: "Kemi", votes: 0 },
+        { name: "Ajayi", votes: 0 }, { name: "Moses", votes: 0 }
+    ];
+
 
     const sopList = [
         "FINANCE: INVOICING PROCESS, BILLS GENERATING PROCESS (PAYABLES), EXPENSES TRACKING PROCESS, DEBT RECOVERY PROCESS, PAYROLL PROCESS, STATEMENT OF PROFIT AND LOSS PROCESS, GOVERNMENT RECORDS.",
@@ -194,11 +216,23 @@
     function renderGame() {
         const grid = document.getElementById('groupGrid');
         const log = document.getElementById('eliminationLog');
+        const surv = document.getElementById('survivorCount');
         grid.innerHTML = '';
         log.innerHTML = '';
 
+        let activeTeams = 0;
+
+        // Render MD Manual Notes first
+        mdManualNotes.forEach(note => {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry md-note';
+            entry.innerText = note;
+            log.appendChild(entry);
+        });
+
         gameData.forEach(group => {
-            // Render Cards
+            if(!group.eliminated) activeTeams++;
+            
             const card = document.createElement('div');
             card.className = 'col';
             card.innerHTML = `
@@ -222,7 +256,6 @@
             `;
             grid.appendChild(card);
 
-            // Render Log if eliminated
             if(group.eliminated) {
                 const entry = document.createElement('div');
                 entry.className = 'log-entry';
@@ -230,37 +263,54 @@
                 log.appendChild(entry);
             }
         });
+
+        surv.innerText = `SURVIVORS: ${activeTeams} / ${gameData.length}`;
+        renderNominations();
+    }
+
+    function renderNominations() {
+        const list = document.getElementById('nominationList');
+        list.innerHTML = '';
         
-        if (log.innerHTML === '') {
-            log.innerHTML = '<div class="text-white">All teams currently compliant.</div>';
-        }
+        // Sort nominations by highest votes
+        const sorted = [...nominationVotes].sort((a,b) => b.votes - a.votes);
+
+        sorted.forEach(person => {
+            const item = document.createElement('div');
+            item.className = 'mb-3';
+            // Calculate percentage based on a rough total of 50 staff members or relative to max
+            const barWidth = (person.votes / 20) * 100; 
+            item.innerHTML = `
+                <div class="d-flex justify-content-between mb-1">
+                    <small class="text-white fw-bold">${person.name}</small>
+                    <small class="text-success fw-bold">${person.votes} Nominations</small>
+                </div>
+                <div class="progress" style="height: 10px; background-color: #333;">
+                    <div class="progress-bar" style="width: ${barWidth}%; background-color: #f60702;"></div>
+                </div>
+            `;
+            list.appendChild(item);
+        });
     }
 
     // SOP BANNER LOGIC
-    let currentSopIndex = 0;
     function cycleSops() {
         const banner = document.getElementById('sopBanner');
         const text = document.getElementById('sopText');
-
-        // Show banner and cycle through 6 depts
         banner.style.display = 'block';
-        
         let counter = 0;
         const interval = setInterval(() => {
             text.innerText = sopList[counter];
             counter++;
             if (counter >= sopList.length) {
                 clearInterval(interval);
-                // Hide banner after 6 minutes (2 min per SOP)
                 setTimeout(() => { banner.style.display = 'none'; }, 120000); 
             }
-        }, 60000); // Change SOP every 1 minute
+        }, 60000);
     }
 
-    // Run SOP cycle every 20 minutes
     setInterval(cycleSops, 1200000); 
-    cycleSops(); // Initial run
-
+    cycleSops();
     renderGame();
 </script>
 
