@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motomedia Experience Naija | Battle Board</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0b0e11;
+            color: #ffffff;
+            font-family: 'Roboto', sans-serif;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-section {
+            background: linear-gradient(90deg, #1a1a1a 0%, #f60702 100%);
+            padding: 20px;
+            border-bottom: 4px solid #f60702;
+        }
+
+        /* SOP Banner Styling */
+        #sopBanner {
+            background: #ffc107;
+            color: #000;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            display: none; /* Controlled by JS */
+            font-family: 'Orbitron', sans-serif;
+            border-bottom: 2px solid #fff;
+        }
+
+        .group-card {
+            background: #1e2125;
+            border: 1px solid #333;
+            border-radius: 12px;
+            transition: all 0.4s ease;
+        }
+
+        .beacon {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .active-beacon {
+            background-color: #00ff88;
+            animation: pulse-green 2s infinite;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+        }
+
+        .eliminated-beacon {
+            background-color: #f60702;
+            box-shadow: 0 0 15px rgba(246, 7, 2, 0.7);
+        }
+
+        .eliminated {
+            opacity: 0.4;
+            filter: grayscale(80%);
+            border-color: #f60702 !important;
+        }
+
+        .poll-sidebar {
+            background: #15191d;
+            border-left: 2px solid #f60702;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Elimination Log Styling */
+        .log-container {
+            background: #000;
+            border: 1px solid #444;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            border-bottom: 1px solid #222;
+            padding: 5px 0;
+            color: #ff3e3e;
+        }
+
+        @keyframes pulse-green {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="sopBanner">
+    SOP ALERT: <span id="sopText">Loading Department Protocols...</span>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-9 p-0">
+            <div class="header-section text-center">
+                <h1 class="display-4 text-white">Motomedia Experience Naija</h1>
+                <p class="text-white">KPI & SOP Employee Engagement Game</p>
+            </div>
+
+            <div class="container mt-4">
+                <div class="row row-cols-1 row-cols-md-3 g-4" id="groupGrid">
+                    </div>
+
+                <h3 class="mt-5 text-danger">Elimination Log</h3>
+                <div class="log-container" id="eliminationLog">
+                    <div class="text-muted">No disqualifications recorded yet. Monitoring KPIs...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 poll-sidebar">
+            <h3 class="text-center mb-4" style="color: #25d366;">WhatsApp Polls</h3>
+            <div id="pollResults">
+                <div class="mb-4">
+                    <p class="mb-1">Most Compliant Team?</p>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: 75%; background-color: #25d366;">Team Alpha (75%)</div>
+                    </div>
+                </div>
+                <div class="alert alert-dark border-success mt-5">
+                    <small class="text-muted">Live updates from Motomedia Hub</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // DATA SECTION
+    // To disqualify: set eliminated to true, and add a reason ('KPI' or 'SOP') and time
+    const gameData = [
+        { id: 1, pair: "Team Alpha", memberA: "Ekene", memberB: "Cecilia", eliminated: false },
+        { id: 2, pair: "Team Bravo", memberA: "Employee 05", memberB: "Employee 09", eliminated: false, reason: "SOP", time: "09:15 AM" },
+        { id: 3, pair: "Team Charlie", memberA: "Employee 03", memberB: "Employee 15", eliminated: false },
+        { id: 4, pair: "Team Delta", memberA: "Employee 07", memberB: "Employee 02", eliminated: false },
+        { id: 5, pair: "Team Echo", memberA: "Employee 11", memberB: "Employee 04", eliminated: false, reason: "KPI", time: "10:30 AM" },
+        { id: 6, pair: "Team Foxtrot", memberA: "Employee 08", memberB: "Employee 10", eliminated: false },
+        { id: 7, pair: "Team Golf", memberA: "Employee 13", memberB: "Employee 22", eliminated: false },
+        { id: 8, pair: "Team Bravo", memberA: "Employee 05", memberB: "Employee 09", eliminated: false, reason: "SOP", time: "09:15 AM" },
+        { id: 9, pair: "Team Charlie", memberA: "Employee 03", memberB: "Employee 15", eliminated: false },
+        { id: 10, pair: "Team Delta", memberA: "Employee 07", memberB: "Employee 02", eliminated: false },
+        { id: 11, pair: "Team Echo", memberA: "Employee 11", memberB: "Employee 04", eliminated: false, reason: "KPI", time: "10:30 AM" },
+        
+    ];
+
+    const sopList = [
+        "FINANCE: INVOICING PROCESS, BILLS GENERATING PROCESS (PAYABLES), EXPENSES TRACKING PROCESS, DEBT RECOVERY PROCESS, PAYROLL PROCESS, STATEMENT OF PROFIT AND LOSS PROCESS, GOVERNMENT RECORDS.",
+        "CLIENT SERVICES : Daily reports must be synced by 5 PM sharp.",
+        "OPERATIONS: Ensure all safety gear is logged in the register.",
+        "HR: Confidentiality agreements must be signed by all partners.",
+        "CREATIVE: Social media assets require 2-step approval.",
+        "ADMIN: System updates are mandatory every Friday at 4 PM."
+    ];
+
+    function renderGame() {
+        const grid = document.getElementById('groupGrid');
+        const log = document.getElementById('eliminationLog');
+        grid.innerHTML = '';
+        log.innerHTML = '';
+
+        gameData.forEach(group => {
+            // Render Cards
+            const card = document.createElement('div');
+            card.className = 'col';
+            card.innerHTML = `
+                <div class="card group-card h-100 p-3 ${group.eliminated ? 'eliminated' : ''}">
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="beacon ${group.eliminated ? 'eliminated-beacon' : 'active-beacon'}"></span>
+                        <h4 class="m-0">${group.pair}</h4>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 border-end border-secondary">
+                            <small class="text-white d-block">Partner A</small>
+                            <strong>${group.memberA}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-white d-block">Partner B</small>
+                            <strong>${group.memberB}</strong>
+                        </div>
+                    </div>
+                    ${group.eliminated ? `<div class="badge bg-danger mt-3">ELIMINATED (${group.reason} BREACH)</div>` : '<div class="badge bg-success mt-3">IN THE GAME</div>'}
+                </div>
+            `;
+            grid.appendChild(card);
+
+            // Render Log if eliminated
+            if(group.eliminated) {
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                entry.innerHTML = `[${group.time}] ALERT: ${group.pair} disqualified due to ${group.reason} failure.`;
+                log.appendChild(entry);
+            }
+        });
+        
+        if (log.innerHTML === '') {
+            log.innerHTML = '<div class="text-muted">All teams currently compliant.</div>';
+        }
+    }
+
+    // SOP BANNER LOGIC
+    let currentSopIndex = 0;
+    function cycleSops() {
+        const banner = document.getElementById('sopBanner');
+        const text = document.getElementById('sopText');
+
+        // Show banner and cycle through 6 depts
+        banner.style.display = 'block';
+        
+        let counter = 0;
+        const interval = setInterval(() => {
+            text.innerText = sopList[counter];
+            counter++;
+            if (counter >= sopList.length) {
+                clearInterval(interval);
+                // Hide banner after 6 minutes (2 min per SOP)
+                setTimeout(() => { banner.style.display = 'none'; }, 120000); 
+            }
+        }, 60000); // Change SOP every 1 minute
+    }
+
+    // Run SOP cycle every 20 minutes
+    setInterval(cycleSops, 1200000); 
+    cycleSops(); // Initial run
+
+    renderGame();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
